@@ -91,8 +91,13 @@ make
 ```bash
 scp rpi-pwr-led.ko core@<node>:
 ssh core@<node> "sudo mkdir -p /usr/local/lib/modules/\$(uname -r) && \
-                 sudo cp rpi-pwr-led.ko /usr/local/lib/modules/\$(uname -r)/"
+                 sudo cp rpi-pwr-led.ko /usr/local/lib/modules/\$(uname -r)/ && \
+                 sudo chcon -t modules_object_t /usr/local/lib/modules/\$(uname -r)/rpi-pwr-led.ko"
 ```
+
+> **SELinux note**: the `chcon` step is required on Fedora CoreOS. Without it,
+> the systemd service will fail with *Permission denied* at boot even though
+> `sudo insmod` works interactively (different SELinux context).
 
 Create `/etc/systemd/system/rpi-fw.service`:
 
