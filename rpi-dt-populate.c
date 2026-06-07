@@ -189,6 +189,21 @@ static int fw_gpio_set_state(u32 gpio, u32 state)
 
 /* ---- Throttle sysfs ---- */
 
+/*
+ * Raw throttle bitmask from firmware tag 0x00030046.
+ *
+ * Each read returns the current state AND clears the sticky historical bits,
+ * so a single read must be used to observe both. Splitting into separate
+ * sysfs files is not possible without a shared cache.
+ *
+ * Bit layout:
+ *   0  under-voltage now        16  under-voltage has occurred since last read
+ *   1  freq capped now          17  freq has been capped since last read
+ *   2  throttled now            18  throttling has occurred since last read
+ *   3  soft temp limit now      19  soft temp limit reached since last read
+ *
+ * 0x0 = all clear.
+ */
 static ssize_t throttled_show(struct device *dev,
 			       struct device_attribute *attr, char *buf)
 {
@@ -197,7 +212,7 @@ static ssize_t throttled_show(struct device *dev,
 
 	if (ret)
 		return ret;
-	return sysfs_emit(buf, "0x%08x\n", val[1]);
+	return sysfs_emit(buf, "0x%x\n", val[1]);
 }
 static DEVICE_ATTR_RO(throttled);
 
@@ -260,7 +275,7 @@ static int __init rpi_fw_init(void)
 	if (ret)
 		pr_warn("rpi-fw: LED registration failed (%d)\n", ret);
 
-	pr_info("rpi-fw: PWR LED off, throttle at /sys/bus/platform/devices/rpi-fw/throttled\n");
+	pr_info("rpi-fw: ready (PWR LED off, throttle at /sys/bus/platform/devices/rpi-fw/)\n");
 	return 0;
 }
 
