@@ -1,0 +1,10 @@
+*.o
+*.ko
+*.mod
+*.mod.c
+*.cmd
+*.symvers
+modules.order
+Module.symvers
+kernel-devel/
+kernel-devel-*.rpm
