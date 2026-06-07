@@ -42,7 +42,8 @@
 /* ---- Cache flush ---- */
 
 /* Clean and invalidate D-cache lines to PoC by virtual address.
- * Cortex-A72 (RPi4) has 64-byte cache lines. */
+ * Cortex-A72 (RPi4) has 64-byte cache lines.
+ */
 static void flush_buffer_poc(const void *buf, size_t len)
 {
 	unsigned long addr = (unsigned long)buf & ~63UL;
@@ -122,7 +123,10 @@ static int mbox_call(u32 tag, void *buf, size_t len)
 	timeout = 10000;
 	while ((readl(mbox_virt + MBOX1_STATUS) & MBOX1_TX_FULL) && --timeout)
 		udelay(10);
-	if (!timeout) { ret = -ETIMEDOUT; goto out; }
+	if (!timeout) {
+		ret = -ETIMEDOUT;
+		goto out;
+	}
 
 	writel((vc_addr & ~0xfU) | PROP_CHAN, mbox_virt + MBOX1_WRITE);
 
@@ -130,7 +134,10 @@ static int mbox_call(u32 tag, void *buf, size_t len)
 	do {
 		while ((readl(mbox_virt + MBOX0_STATUS) & MBOX0_RX_EMPTY) && --timeout)
 			udelay(10);
-		if (!timeout) { ret = -ETIMEDOUT; goto out; }
+		if (!timeout) {
+			ret = -ETIMEDOUT;
+			goto out;
+		}
 		resp = readl(mbox_virt + MBOX0_READ);
 	} while ((resp & 0xf) != PROP_CHAN);
 
